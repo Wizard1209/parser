@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         String INPUT_FILE = "C:\\Users\\Vova\\workspace\\parser_env\\3549145408_1618162017.dem";
         String OUTPUT_FILE = "C:\\Users\\Vova\\workspace\\parser_env\\res.jsonl";
-
+        //test
         simplifiedInOut(INPUT_FILE, OUTPUT_FILE);
         // alternative config
         // startServer(args);
