@@ -382,6 +382,7 @@ public class Parse {
 
     @OnEntityEntered
     public void onEntityEntered(Context ctx, Entity e) {
+        System.out.println(e.getDtClass().getDtName());
         processEntity(ctx, e, false);
         if (e.getDtClass().getDtName().equals("CDOTAWearableItem")) {
         	Integer accountId = getEntityProperty(e, "m_iAccountID", null);
