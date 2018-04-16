@@ -109,6 +109,8 @@ public class Parse {
         	public Integer draft_active_team;
         	public Integer draft_extime0;
         	public Integer draft_extime1;
+        // Creep positions list
+        List<int[]> creeps_pos;
 
 		public Entry() {
 		}
@@ -148,6 +150,8 @@ public class Parse {
     HashMap<Long, Integer> steamid_to_playerslot = new HashMap<Long, Integer>();
 	HashMap<Integer, Integer> cosmeticsMap = new HashMap<Integer, Integer>();
     HashMap<Integer, Integer> ward_ehandle_to_slot = new HashMap<Integer, Integer>();
+    // creeps
+    HashSet<Entity> creeps = new HashSet<>(200);
     InputStream is = null;
     OutputStream os = null;
 	private GreevilsGreedVisitor greevilsGreedVisitor;
@@ -382,7 +386,7 @@ public class Parse {
 
     @OnEntityEntered
     public void onEntityEntered(Context ctx, Entity e) {
-        System.out.println(e.getDtClass().getDtName());
+        //System.out.println(e.getDtClass().getDtName());
         processEntity(ctx, e, false);
         if (e.getDtClass().getDtName().equals("CDOTAWearableItem")) {
         	Integer accountId = getEntityProperty(e, "m_iAccountID", null);
@@ -642,7 +646,18 @@ public class Parse {
                     }
                     output(entry);
                 }
+
+                Entry entry = new Entry(time);
+                entry.type = "creeps";
+                entry.creeps_pos = new ArrayList<>();
+                for (Entity creep : creeps) {
+                    int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+                    int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+                    int[] pos = {x, y};
+                    entry.creeps_pos.add(pos);
+                }
                 nextInterval += INTERVAL;
+                output(entry);
             }
         }
     }
@@ -757,6 +772,14 @@ public class Parse {
             //2/3 radiant/dire
             //entry.team = e.getProperty("m_iTeamNum");
             output(entry);
+        }
+
+        boolean isCreep = e.getDtClass().getDtName().equals("CDOTA_BaseNPC_Creep_Lane");
+        if (isCreep) {
+            if (entityLeft)
+                creeps.remove(e);
+            else
+                creeps.add(e);
         }
     }
 }
