@@ -557,42 +557,47 @@ public class Parse {
                 //System.err.println(pr);
                 for (int i = 0; i < numPlayers; i++) 
                 {
-                    Integer hero = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_nSelectedHeroID", validIndices[i]);
-                    int handle = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_hSelectedHero", validIndices[i]);
-                    int playerTeam = getEntityProperty(pr, "m_vecPlayerData.%i.m_iPlayerTeam", validIndices[i]);
-                    int teamSlot = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iTeamSlot", validIndices[i]);
+                    String fValidInd = Util.arrayIdxToString(validIndices[i]);
+                    String vecPTData = "m_vecPlayerTeamData." + fValidInd;
 
+                    Integer hero = getEntityFProperty(pr, vecPTData.concat(".m_nSelectedHeroID"));
+                    int handle = getEntityFProperty(pr, vecPTData.concat(".m_hSelectedHero"));
+                    int playerTeam = getEntityFProperty(pr, "m_vecPlayerData." + fValidInd + ".m_iPlayerTeam");
+                    int teamSlot = getEntityFProperty(pr, vecPTData.concat(".m_iTeamSlot"));
+
+                    String fTeamSlot = Util.arrayIdxToString(teamSlot);
+                    String vecDataT = vecDataT = "m_vecDataTeam." + fTeamSlot;
                     //2 is radiant, 3 is dire, 1 is other?
                     Entity dataTeam = playerTeam == 2 ? rData : dData;
 
                     Entry entry = new Entry(time);
                     entry.type = "interval";
                     entry.slot = i;
-                    entry.repicked = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_bHasRepicked", validIndices[i]);
-                    entry.randomed = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_bHasRandomed", validIndices[i]);
-                    entry.pred_vict = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_bHasPredictedVictory", validIndices[i]);
-                    entry.firstblood_claimed = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iFirstBloodClaimed", validIndices[i]);
-                    entry.teamfight_participation = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_flTeamFightParticipation", validIndices[i]);;
-                    entry.level = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iLevel", validIndices[i]);
-                    entry.kills = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iKills", validIndices[i]);
-                    entry.deaths = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iDeaths", validIndices[i]);
-                    entry.assists = getEntityProperty(pr, "m_vecPlayerTeamData.%i.m_iAssists", validIndices[i]);
-                    entry.denies = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iDenyCount", teamSlot);
-                    entry.obs_placed = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iObserverWardsPlaced", teamSlot);
-                    entry.sen_placed = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iSentryWardsPlaced", teamSlot);
-                    entry.creeps_stacked = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iCreepsStacked", teamSlot);
-                    entry.camps_stacked = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iCampsStacked", teamSlot);
-                    entry.rune_pickups = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iRunePickups", teamSlot);
-                    entry.towers_killed = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iTowerKills", teamSlot);
-                    entry.roshans_killed = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iRoshanKills", teamSlot);
-                    entry.observers_placed = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iObserverWardsPlaced", teamSlot);
-                    
-                    if (teamSlot >= 0) 
+                    entry.repicked = getEntityFProperty(pr, vecPTData.concat(".m_bHasRepicked"));
+                    entry.randomed = getEntityFProperty(pr, vecPTData.concat(".m_bHasRandomed"));
+                    entry.pred_vict = getEntityFProperty(pr, vecPTData.concat(".m_bHasPredictedVictory"));
+                    entry.firstblood_claimed = getEntityFProperty(pr, vecPTData.concat(".m_iFirstBloodClaimed"));
+                    entry.teamfight_participation = getEntityFProperty(pr, vecPTData.concat(".m_flTeamFightParticipation"));;
+                    entry.level = getEntityFProperty(pr, vecPTData.concat(".m_iLevel"));
+                    entry.kills = getEntityFProperty(pr, vecPTData.concat(".m_iKills"));
+                    entry.deaths = getEntityFProperty(pr, vecPTData.concat(".m_iDeaths"));
+                    entry.assists = getEntityFProperty(pr, vecPTData.concat(".m_iAssists"));
+                    entry.denies = getEntityFProperty(dataTeam, vecDataT.concat(".m_iDenyCount"));
+                    entry.obs_placed = getEntityFProperty(dataTeam, vecDataT.concat(".m_iObserverWardsPlaced"));
+                    entry.sen_placed = getEntityFProperty(dataTeam, vecDataT.concat(".m_iSentryWardsPlaced"));
+                    entry.creeps_stacked = getEntityFProperty(dataTeam, vecDataT.concat(".m_iCreepsStacked"));
+                    entry.camps_stacked = getEntityFProperty(dataTeam, vecDataT.concat(".m_iCampsStacked"));
+                    entry.rune_pickups = getEntityFProperty(dataTeam, vecDataT.concat(".m_iRunePickups"));
+                    entry.towers_killed = getEntityFProperty(dataTeam, vecDataT.concat(".m_iTowerKills"));
+                    entry.roshans_killed = getEntityFProperty(dataTeam, vecDataT.concat(".m_iRoshanKills"));
+                    entry.observers_placed = getEntityFProperty(dataTeam, vecDataT.concat(".m_iObserverWardsPlaced"));
+
+                    if (teamSlot >= 0)
                     {
-                        entry.gold = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iTotalEarnedGold", teamSlot);
-                        entry.lh = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iLastHitCount", teamSlot);
-                        entry.xp = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_iTotalEarnedXP", teamSlot);
-                        entry.stuns = getEntityProperty(dataTeam, "m_vecDataTeam.%i.m_fStuns", teamSlot);
+                        entry.gold = getEntityFProperty(dataTeam, vecDataT.concat(".m_iTotalEarnedGold"));
+                        entry.lh = getEntityFProperty(dataTeam, vecDataT.concat(".m_iLastHitCount"));
+                        entry.xp = getEntityFProperty(dataTeam, vecDataT.concat(".m_iTotalEarnedXP"));
+                        entry.stuns = getEntityFProperty(dataTeam, vecDataT.concat(".m_fStuns"));
                     }
                     
                     //TODO: gem, rapier time?
@@ -718,19 +723,34 @@ public class Parse {
     }
 
     public <T> T getEntityProperty(Entity e, String property, Integer idx) {
-    	try {
-	        if (e == null) {
-	            return null;
-	        }
-	        if (idx != null) {
-	            property = property.replace("%i", Util.arrayIdxToString(idx));
-	        }
-	        FieldPath fp = e.getDtClass().getFieldPathForName(property);
-	        return e.getPropertyForFieldPath(fp);
-    	}
-    	catch (Exception ex) {
-    		return null;
-    	}
+        try {
+            if (e == null) {
+                return null;
+            }
+            if (idx != null) {
+                property = property.replace("%i", Util.arrayIdxToString(idx));
+            }
+
+            FieldPath fp = e.getDtClass().getFieldPathForName(property);
+            return e.getPropertyForFieldPath(fp);
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+    // Entity property from formated string
+    public <T> T getEntityFProperty(Entity e, String property) {
+        try {
+            if (e == null) {
+                return null;
+            }
+
+            FieldPath fp = e.getDtClass().getFieldPathForName(property);
+            return e.getPropertyForFieldPath(fp);
+        }
+        catch (Exception ex) {
+            return null;
+        }
     }
     
     public void processEntity(Context ctx, Entity e, boolean entityLeft)
