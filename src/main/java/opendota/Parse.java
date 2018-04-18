@@ -2,10 +2,10 @@ package opendota;
 
 import com.google.gson.Gson;
 import com.google.protobuf.GeneratedMessage;
+import org.atteo.classindex.IndexAnnotated;
 import skadistats.clarity.decoder.Util;
-import skadistats.clarity.model.Entity;
-import skadistats.clarity.model.FieldPath;
-import skadistats.clarity.model.StringTable;
+import skadistats.clarity.event.Insert;
+import skadistats.clarity.model.*;
 import skadistats.clarity.processor.entities.Entities;
 import skadistats.clarity.processor.entities.OnEntityEntered;
 import skadistats.clarity.processor.entities.OnEntityLeft;
@@ -15,7 +15,8 @@ import skadistats.clarity.processor.reader.OnMessage;
 import skadistats.clarity.processor.reader.OnTickStart;
 import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
-import skadistats.clarity.model.CombatLogEntry;
+import skadistats.clarity.processor.resources.Resources;
+import skadistats.clarity.processor.resources.UsesResources;
 import skadistats.clarity.processor.stringtables.StringTables;
 import skadistats.clarity.processor.stringtables.UsesStringTable;
 import skadistats.clarity.source.InputStreamSource;
@@ -39,6 +40,8 @@ import opendota.combatlogvisitors.TrackVisitor;
 import opendota.combatlogvisitors.GreevilsGreedVisitor;
 import opendota.combatlogvisitors.TrackVisitor.TrackStatus;
 
+@UsesResources
+@UsesEntities
 public class Parse {
 
 	public class Entry {
@@ -46,6 +49,7 @@ public class Parse {
 		public String type;
 		public Integer team;
 		public String unit;
+		public String attacktype;
 		public String key;
 		public Integer value;
 		public Integer slot;
@@ -151,7 +155,10 @@ public class Parse {
 	HashMap<Integer, Integer> cosmeticsMap = new HashMap<Integer, Integer>();
     HashMap<Integer, Integer> ward_ehandle_to_slot = new HashMap<Integer, Integer>();
     // creeps
-    HashSet<Entity> creeps = new HashSet<>(200);
+    HashSet<Entity> creeps_dire_m = new HashSet<>(50);
+	HashSet<Entity> creeps_radiant_m = new HashSet<>(100);
+	HashSet<Entity> creeps_dire_r = new HashSet<>(50);
+	HashSet<Entity> creeps_radiant_r = new HashSet<>(100);
     InputStream is = null;
     OutputStream os = null;
 	private GreevilsGreedVisitor greevilsGreedVisitor;
@@ -163,7 +170,8 @@ public class Parse {
     boolean[] draftOrderProcessed = new boolean[22];
     int order = 1;
 
-
+	@Insert
+	private Resources resources;
 
     public Parse(InputStream input, OutputStream output) throws IOException
     {
@@ -649,15 +657,55 @@ public class Parse {
 
                 Entry entry = new Entry(time);
                 entry.type = "creeps";
+                entry.attacktype = "ranged";
+                entry.team = 2;// radiant
                 entry.creeps_pos = new ArrayList<>();
-                for (Entity creep : creeps) {
+                for (Entity creep : creeps_radiant_r) {
                     int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
                     int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
                     int[] pos = {x, y};
                     entry.creeps_pos.add(pos);
                 }
+				output(entry);
+
+				entry.type = "creeps";
+				entry.attacktype = "ranged";
+				entry.team = 3;// dire
+				entry.creeps_pos = new ArrayList<>();
+				for (Entity creep : creeps_dire_r) {
+					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					int[] pos = {x, y};
+					entry.creeps_pos.add(pos);
+				}
+				output(entry);
+
+				entry.type = "creeps";
+				entry.attacktype = "melee";
+				entry.team = 2;// radiant
+				entry.creeps_pos = new ArrayList<>();
+				for (Entity creep : creeps_radiant_m) {
+					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					int[] pos = {x, y};
+					entry.creeps_pos.add(pos);
+				}
+				output(entry);
+
+				entry.type = "creeps";
+				entry.attacktype = "melee";
+				entry.team = 3;// dire
+				entry.creeps_pos = new ArrayList<>();
+				for (Entity creep : creeps_dire_m) {
+					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					int[] pos = {x, y};
+					entry.creeps_pos.add(pos);
+				}
+				output(entry);
+
                 nextInterval += INTERVAL;
-                output(entry);
+
             }
         }
     }
@@ -776,10 +824,31 @@ public class Parse {
 
         boolean isCreep = e.getDtClass().getDtName().equals("CDOTA_BaseNPC_Creep_Lane");
         if (isCreep) {
-            if (entityLeft)
-                creeps.remove(e);
-            else
-                creeps.add(e);
+			FieldPath fp = e.getDtClass().getFieldPathForName("CBodyComponent.m_hModel");
+			Long resourceHandle = e.getPropertyForFieldPath(fp);
+			Resources.Entry entry = resources.getEntryForResourceHandle(resourceHandle);
+			String model = entry.toString();
+			//System.out.println(model);
+			boolean r_or_m = model.contains("ranged"), team = model.contains("radiant");
+			HashSet a;
+			if (r_or_m) {
+				if (team) {
+					a = creeps_radiant_r;
+				} else {
+					a = creeps_dire_r;
+				}
+			} else {
+				if (team) {
+					a = creeps_radiant_m;
+				} else {
+					a = creeps_dire_m;
+				}
+			}
+			if (entityLeft) {
+				a.remove(e);
+			} else {
+				a.add(e);
+			}
         }
     }
 }
