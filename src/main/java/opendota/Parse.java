@@ -114,7 +114,8 @@ public class Parse {
         	public Integer draft_extime0;
         	public Integer draft_extime1;
         // Creep positions list
-        List<int[]> creeps_pos;
+        List<Integer> creeps_pos_x;
+		List<Integer> creeps_pos_y;
 
 		public Entry() {
 		}
@@ -659,48 +660,55 @@ public class Parse {
                 entry.type = "creeps";
                 entry.attacktype = "ranged";
                 entry.team = 2;// radiant
-                entry.creeps_pos = new ArrayList<>();
+                entry.creeps_pos_x = new ArrayList<>();
+				entry.creeps_pos_y = new ArrayList<>();
                 for (Entity creep : creeps_radiant_r) {
-                    int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
-                    int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
-                    int[] pos = {x, y};
-                    entry.creeps_pos.add(pos);
+                    Integer x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+                    Integer y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					entry.creeps_pos_x.add(x);
+                    entry.creeps_pos_y.add(y);
                 }
 				output(entry);
 
+				entry = new Entry(time);
 				entry.type = "creeps";
 				entry.attacktype = "ranged";
 				entry.team = 3;// dire
-				entry.creeps_pos = new ArrayList<>();
+				entry.creeps_pos_x = new ArrayList<>();
+				entry.creeps_pos_y = new ArrayList<>();
 				for (Entity creep : creeps_dire_r) {
-					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
-					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
-					int[] pos = {x, y};
-					entry.creeps_pos.add(pos);
+					Integer x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					Integer y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					entry.creeps_pos_x.add(x);
+					entry.creeps_pos_y.add(y);
 				}
 				output(entry);
 
+				entry = new Entry(time);
 				entry.type = "creeps";
 				entry.attacktype = "melee";
 				entry.team = 2;// radiant
-				entry.creeps_pos = new ArrayList<>();
+				entry.creeps_pos_x = new ArrayList<>();
+				entry.creeps_pos_y = new ArrayList<>();
 				for (Entity creep : creeps_radiant_m) {
-					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
-					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
-					int[] pos = {x, y};
-					entry.creeps_pos.add(pos);
+					Integer x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					Integer y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					entry.creeps_pos_x.add(x);
+					entry.creeps_pos_y.add(y);
 				}
 				output(entry);
 
+				entry = new Entry(time);
 				entry.type = "creeps";
 				entry.attacktype = "melee";
 				entry.team = 3;// dire
-				entry.creeps_pos = new ArrayList<>();
+				entry.creeps_pos_x = new ArrayList<>();
+				entry.creeps_pos_y = new ArrayList<>();
 				for (Entity creep : creeps_dire_m) {
-					int x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
-					int y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
-					int[] pos = {x, y};
-					entry.creeps_pos.add(pos);
+					Integer x = getEntityProperty(creep, "CBodyComponent.m_cellX", null);
+					Integer y = getEntityProperty(creep, "CBodyComponent.m_cellY", null);
+					entry.creeps_pos_x.add(x);
+					entry.creeps_pos_y.add(y);
 				}
 				output(entry);
 
